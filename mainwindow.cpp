@@ -6,6 +6,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->centralwidget->setLayout(ui->verticalLayout_4);
+
+//    adjustSize();
 
     database = QSqlDatabase::addDatabase("QSQLITE");
     database.setDatabaseName("./testDB.db");
