@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QDirModel>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -11,7 +12,9 @@ MainWindow::MainWindow(QWidget *parent)
 //    adjustSize();
 
     database = QSqlDatabase::addDatabase("QSQLITE");
-    database.setDatabaseName("./testDB.db");
+    database.setDatabaseName("./database.db");
+
+    hideDB.setDatabaseName("./hideDB.db");
 
     if(database.open())
     {
@@ -29,8 +32,27 @@ MainWindow::MainWindow(QWidget *parent)
     model->setTable("DataBase");
     model->select();
 
+    query_hideDB = QSqlQuery(hideDB);
+    query_hideDB.exec("CREATE TABLE hideDB(№ INTEGER PRIMARY KEY AUTOINCREMENT, Number varchar(255), Name varchar(255), Count varchar(255), Commentaries varchar(255));");
+
+    model_hideDB = new QSqlTableModel(this, hideDB);
+    model_hideDB->setTable("hideDB");
+    model_hideDB->select();
+
     ui->tableView->setModel(model);
     ui->tableView->setColumnHidden(0,true);
+
+    QCompleter *completer_number, *completer_name;
+
+    completer_number = new QCompleter(model_hideDB,this);
+    completer_number->setCaseSensitivity(Qt::CaseInsensitive);
+    completer_number->setCompletionColumn(1);
+    ui->lineEdit->setCompleter(completer_number);
+
+    completer_name = new QCompleter(model_hideDB,this);
+    completer_name->setCaseSensitivity(Qt::CaseInsensitive);
+    completer_name->setCompletionColumn(2);
+    ui->lineEdit_2->setCompleter(completer_name);
 }
 MainWindow::~MainWindow()
 {
@@ -56,6 +78,20 @@ void MainWindow::on_pushButton_clicked() //add row
     query.bindValue(":comm",comm);
     query.exec();
     model->select();
+
+    query_hideDB.prepare("INSERT INTO hideDB(Number, Name, Count, Commentaries)"
+                   "VALUES(:number,:name, :count, :comm);");
+    query_hideDB.bindValue(":number",number);
+    query_hideDB.bindValue(":name",name);
+    query_hideDB.bindValue(":count",count);
+    query_hideDB.bindValue(":comm",comm);
+    query_hideDB.exec();
+    model_hideDB->select();
+
+    ui->lineEdit->clear();
+    ui->lineEdit_2->clear();
+    ui->lineEdit_3->clear();
+    ui->lineEdit_4->clear();
 }
 
 void MainWindow::on_pushButton_2_clicked() //delete row
@@ -72,8 +108,7 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index) //choose row fro
 }
 void MainWindow::on_lineEdit_5_textEdited(const QString &arg1)  //search text in rows
 {
-
-    model->setFilter(QString("upper(Name, ru_ru) LIKE '%%1%'").arg(arg1));
+    model->setFilter(QString("Name LIKE '%%1%'").arg(arg1));
     int row = model->rowCount();
     int row_num = -1;
     qDebug() << model->filter();
@@ -85,9 +120,6 @@ void MainWindow::on_lineEdit_5_textEdited(const QString &arg1)  //search text in
     if(row_num==0)
         model->setFilter(QString("Commentaries LIKE '%%1%'").arg(arg1));
 
-
-//    model->setFilter(QString("Number LIKE '%%1%'").arg(arg1));
-//    model->setFilter(QString("Commentaries LIKE '%%1%'").arg(arg1));
     model->select();
 
     qDebug("search: %s", arg1.toStdString().c_str());
@@ -96,4 +128,18 @@ void MainWindow::on_lineEdit_5_textEdited(const QString &arg1)  //search text in
     query.exec();
     qDebug() << query.isValid();
     qDebug() << query.isSelect();
+}
+
+void MainWindow::on_lineEdit_6_textChanged(const QString &arg1)
+{
+//    qDebug() << arg1.length();
+//    qDebug() << testStr.at(1);
+
+//    QString str = "";
+
+//    for (int i = 0; i < arg1.length(); i++)
+//    {
+//        str += arg1.at(i);
+//        qDebug() << str;
+//    }
 }

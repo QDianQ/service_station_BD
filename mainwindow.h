@@ -7,6 +7,8 @@
 #include <QSqlQuery>
 #include <QSqlTableModel>
 #include <QDebug>
+#include <QCompleter>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -32,13 +34,17 @@ private slots:
 
      void on_lineEdit_5_textEdited(const QString &arg1);
 
+     void on_lineEdit_6_textChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
-    QSqlDatabase database;
-    QSqlQuery query;
-    QSqlTableModel *model;
+    QSqlDatabase database, hideDB;
+    QSqlQuery query, query_hideDB;
+    QSqlTableModel *model, *model_hideDB;
+    QCompleter *completer;
 
     int row;
-    QString name, number, comm, search, count;
+    QString name, number, comm, search, count, testStr;
+    QStringList str_list;
 };
 #endif // MAINWINDOW_H

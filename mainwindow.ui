@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>770</width>
-    <height>460</height>
+    <width>773</width>
+    <height>504</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -198,6 +198,12 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
            <property name="text">
             <string>Search</string>
            </property>
@@ -262,7 +268,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>770</width>
+     <width>773</width>
      <height>21</height>
     </rect>
    </property>
