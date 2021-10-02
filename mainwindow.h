@@ -34,17 +34,16 @@ private slots:
 
      void on_lineEdit_5_textEdited(const QString &arg1);
 
-     void on_lineEdit_6_textChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
-    QSqlDatabase database, hideDB;
-    QSqlQuery query, query_hideDB;
-    QSqlTableModel *model, *model_hideDB;
+    QSqlDatabase main_db, hideDB, lowwerDB;
+    QSqlQuery query, query_hideDB, query_lowwerDB;
+    QSqlTableModel *model, *model_hideDB, *model_lowwerDB;
     QCompleter *completer;
 
     int row;
-    QString name, number, comm, search, count, testStr;
+    QString name, number, comm, search_original, count, testStr;
     QStringList str_list;
 };
 #endif // MAINWINDOW_H
