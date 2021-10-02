@@ -183,7 +183,7 @@ void MainWindow::on_lineEdit_5_textEdited(const QString &arg1)  //search text in
 //    }
 //}
 
-//нужно реализовать это в qt
+//Нужно реализовать это в qt
 //SELECT table_1.string from table_1 , table_2
 //WHERE
 //table_1.number = table_2.number AND
