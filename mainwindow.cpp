@@ -11,73 +11,45 @@ MainWindow::MainWindow(QWidget *parent)
 
 //    adjustSize();
 
-    main_db = QSqlDatabase::addDatabase("QSQLITE");
+    mainDB = QSqlDatabase::addDatabase("QSQLITE");
 
-    main_db.setDatabaseName("./main_db.db");
-    hideDB.setDatabaseName("./hideDB.db");
-    lowwerDB.setDatabaseName("./lowwerDB.db");
+    mainDB.setDatabaseName("./mainDB.db");
+//    hideDB.setDatabaseName("./hideDB.db");
+//    lowwerDB.setDatabaseName("./lowwerDB.db");
 
-    if(main_db.open())
-    {
+    if(mainDB.open())
         qDebug("open main");
-    }
     else
-    {
         qDebug("no open");
-    }
-    if(hideDB.open())
-    {
-        qDebug("open main");
-    }
-    else
-    {
-        qDebug("no open");
-    }
-    if(lowwerDB.open())
-    {
-        qDebug("open main");
-    }
-    else
-    {
-        qDebug("no open");
-    }
 
 
-    //main_db for visual contents
-    query = QSqlQuery(main_db);
-    query.exec("CREATE TABLE main_db(№ INTEGER PRIMARY KEY AUTOINCREMENT, Number varchar(255), Name varchar(255), Count varchar(255), Commentaries varchar(255));");
-
-    model = new QSqlTableModel(this, main_db);
-    model->setTable("main_db");
-    model->select();
+    //mainDB for visual contents
+    query = QSqlQuery(mainDB);
+    query.exec("CREATE TABLE mainDB(prime_ID INTEGER PRIMARY KEY AUTOINCREMENT, Number varchar(255), Name varchar(255), Count varchar(255), Commentaries varchar(255));");
 
     //hide_db for creating fully contents db
-    query_hideDB = QSqlQuery(hideDB);
-    query_hideDB.exec("CREATE TABLE hideDB(№ INTEGER PRIMARY KEY AUTOINCREMENT, Number varchar(255), Name varchar(255), Count varchar(255), Commentaries varchar(255));");
+    query.exec("CREATE TABLE hideDB(prime_ID INTEGER PRIMARY KEY AUTOINCREMENT, Number varchar(255), Name varchar(255), Count varchar(255), Commentaries varchar(255));");
 
-    model_hideDB = new QSqlTableModel(this, hideDB);
-    model_hideDB->setTable("hideDB");
-    model_hideDB->select();
+    //lowwerDB for search into mainDB using ru language
+    query.exec("CREATE TABLE lowwerDB(prime_ID INTEGER PRIMARY KEY AUTOINCREMENT, Number varchar(255), Name varchar(255), Count varchar(255), Commentaries varchar(255));");
 
-    //lowwerDB for search into main_db using ru language
-    query_lowwerDB = QSqlQuery(lowwerDB);
-    query_lowwerDB.exec("CREATE TABLE lowwerDB(№ INTEGER PRIMARY KEY AUTOINCREMENT, Number varchar(255), Name varchar(255), Count varchar(255), Commentaries varchar(255));");
+    model = new QSqlTableModel(this, mainDB);
+    model->setTable("mainDB");
+    model->select();
 
-    model_lowwerDB = new QSqlTableModel(this, lowwerDB);
-    model_lowwerDB->setTable("lowwerDB");
-    model_lowwerDB->select();
+    qDebug() << model->tableName();
 
     ui->tableView->setModel(model);
     ui->tableView->setColumnHidden(0,true);
 
     QCompleter *completer_number, *completer_name;
 
-    completer_number = new QCompleter(model_hideDB,this);
+    completer_number = new QCompleter(model,this);
     completer_number->setCaseSensitivity(Qt::CaseInsensitive);
     completer_number->setCompletionColumn(1);
     ui->lineEdit->setCompleter(completer_number);
 
-    completer_name = new QCompleter(model_hideDB,this);
+    completer_name = new QCompleter(model,this);
     completer_name->setCaseSensitivity(Qt::CaseInsensitive);
     completer_name->setCompletionColumn(2);
     ui->lineEdit_2->setCompleter(completer_name);
@@ -97,32 +69,33 @@ void MainWindow::on_pushButton_clicked() //add row
     qDebug("%s", number.toStdString().c_str());
     qDebug("%s", comm.toStdString().c_str());
 
-    query.prepare("INSERT INTO main_db(Number, Name, Count, Commentaries)"
+    query.prepare("INSERT INTO mainDB(Number, Name, Count, Commentaries)"
                    "VALUES(:number,:name, :count, :comm);");
     query.bindValue(":number",number);
     query.bindValue(":name",name);
     query.bindValue(":count",count);
     query.bindValue(":comm",comm);
     query.exec();
+//    model->select();
+
+    query.prepare("INSERT INTO hideDB(Number, Name, Count, Commentaries)"
+                   "VALUES(:number,:name, :count, :comm);");
+    query.bindValue(":number",number);
+    query.bindValue(":name",name);
+    query.bindValue(":count",count);
+    query.bindValue(":comm",comm);
+    query.exec();
+//    model->select();
+
+    query.prepare("INSERT INTO lowwerDB(Number, Name, Count, Commentaries)"
+                   "VALUES(:number,:name, :count, :comm);");
+    query.bindValue(":number",number.toLower());
+    query.bindValue(":name",name.toLower());
+    query.bindValue(":count",count.toLower());
+    query.bindValue(":comm",comm.toLower());
+    query.exec();
+
     model->select();
-
-    query_hideDB.prepare("INSERT INTO hideDB(Number, Name, Count, Commentaries)"
-                   "VALUES(:number,:name, :count, :comm);");
-    query_hideDB.bindValue(":number",number);
-    query_hideDB.bindValue(":name",name);
-    query_hideDB.bindValue(":count",count);
-    query_hideDB.bindValue(":comm",comm);
-    query_hideDB.exec();
-    model_hideDB->select();
-
-    query_lowwerDB.prepare("INSERT INTO lowwerDB(Number, Name, Count, Commentaries)"
-                   "VALUES(:number,:name, :count, :comm);");
-    query_lowwerDB.bindValue(":number",number.toLower());
-    query_lowwerDB.bindValue(":name",name.toLower());
-    query_lowwerDB.bindValue(":count",count.toLower());
-    query_lowwerDB.bindValue(":comm",comm.toLower());
-    query_lowwerDB.exec();
-    model_lowwerDB->select();
 
     ui->lineEdit->clear();
     ui->lineEdit_2->clear();
@@ -146,27 +119,55 @@ void MainWindow::on_lineEdit_5_textEdited(const QString &arg1)  //search text in
 {
 
 
-    model->setFilter(QString("Name LIKE '%%1%'").arg(arg1));
-    int row = model->rowCount();
-    int row_num = -1;
-    qDebug() << model->filter();
-    if(row==0)
-    {
-        model->setFilter(QString("Number LIKE '%%1%'").arg(arg1));
-        row_num = model->rowCount();
-    }
-    if(row_num==0)
-        model->setFilter(QString("Commentaries LIKE '%%1%'").arg(arg1));
+//    model->setFilter(QString("Name LIKE '%%1%'").arg(arg1));
+//    int row = model->rowCount();
+//    int row_num = -1;
+//    qDebug() << model->filter();
+//    if(row==0)
+//    {
+//        model->setFilter(QString("Number LIKE '%%1%'").arg(arg1));
+//        row_num = model->rowCount();
+//    }
+//    if(row_num==0)
+//        model->setFilter(QString("Commentaries LIKE '%%1%'").arg(arg1));
 
-    model->select();
+//    model->select();
+
+//    qDebug("search_original: %s", arg1.toStdString().c_str());
+//    query.prepare("SELECT Name FROM mainDB WHERE Name = :search_original;");
+//    query.bindValue(":search_original",arg1);
+//    query.exec();
+//    qDebug() << query.isValid();
+//    qDebug() << query.isSelect();
+//    qDebug() << arg1.toLower();
+
 
     qDebug("search_original: %s", arg1.toStdString().c_str());
-    query.prepare("SELECT Name FROM main_db WHERE Name = :search_original;");
-    query.bindValue(":search_original",arg1);
-    query.exec();
-    qDebug() << query.isValid();
-    qDebug() << query.isSelect();
-    qDebug() << arg1.toLower();
+
+//    query.prepare("SELECT mainDB.Name"
+//                  "FROM mainDB, lowwerDB"
+//                  "WHERE "
+//                  "mainDB.prime_ID = lowwerDB.prime_ID AND"
+//                  "lowwerDB.Name LIKE %:search_result%;");
+
+//    query.bindValue(":search_result",arg1.toLower());
+
+
+//    query.exec();
+//    model->setFilter(QString("SELECT mainDB.Name"
+//                             "FROM mainDB, lowwerDB"
+//                             "WHERE "
+//                             "mainDB.prime_ID = lowwerDB.prime_ID AND"
+//                             "lowwerDB.Name LIKE '%%1%';").arg(arg1));
+
+    model->setTable("mainDB");
+    qDebug() << model->tableName();
+    model->setFilter(QString("mainDB.Number LIKE '%%1%'"
+                             "OR mainDB.Name LIKE '%%2%'").arg(arg1).arg(arg1));
+
+    model->select();
+    qDebug() << model->filter();
+    qDebug() << model->select();
 }
 
 //void MainWindow::on_lineEdit_6_textChanged(const QString &arg1)
@@ -188,3 +189,6 @@ void MainWindow::on_lineEdit_5_textEdited(const QString &arg1)  //search text in
 //WHERE
 //table_1.number = table_2.number AND
 //table_2.string LIKE '%t%';
+
+//возможно нужен QSqlRelationalTableModel
+//https://itnan.ru/post.php?c=1&p=435134

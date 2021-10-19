@@ -37,9 +37,9 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QSqlDatabase main_db, hideDB, lowwerDB;
-    QSqlQuery query, query_hideDB, query_lowwerDB;
-    QSqlTableModel *model, *model_hideDB, *model_lowwerDB;
+    QSqlDatabase mainDB, hideDB, lowwerDB;
+    QSqlQuery query;
+    QSqlTableModel *model;
     QCompleter *completer;
 
     int row;
