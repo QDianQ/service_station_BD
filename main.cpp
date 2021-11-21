@@ -6,10 +6,10 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-//    MainWindow w;
-//    w.show();
+    MainWindow w;
+    w.show();
 
-    TestMainWindow testWindow;
-    testWindow.show();
+//    TestMainWindow testWindow;
+//    testWindow.show();
     return a.exec();
 }

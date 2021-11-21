@@ -11,24 +11,18 @@ TestMainWindow::TestMainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//    connectToDB();
-    QSqlDatabase sqliteDB = QSqlDatabase::addDatabase("QSQLITE");
-    sqliteDB.setDatabaseName("./sqliteDB.db");
-    if (!sqliteDB.open())
-    QMessageBox::critical(NULL,QObject::tr("Ошибка"),sqliteDB.lastError().text());
-    else
-        qDebug() << "Connect succesful";
+    connectToDB();
 
-    query = QSqlQuery(sqliteDB);
+    query = QSqlQuery(db);
 
-    model = new QSqlTableModel(this, sqliteDB);
-    model->setTable("mainDB");
+    model = new QSqlTableModel(this, db);
+    model->setTable("maindb");
     model->select();
 
     ui->tableView->setModel(model);
 
 
-    qDebug() << "name " << sqliteDB.databaseName();
+    qDebug() << "table's names" << db.tables();
     qDebug() << "active table" << model->tableName();
     qDebug() << "active db" << model->database();
 
@@ -50,7 +44,7 @@ void TestMainWindow::connectToDB()
     db.setUserName("postgres");
     //его пароль
     db.setPassword("1234");
-    db.setPort(5432);
+//    db.setPort(5432);
     /*открываем подключение; если неудачно - выводим сообщение об ошибке*/
     if (!db.open())
     QMessageBox::critical(NULL,QObject::tr("Ошибка"),db.lastError().text());
@@ -65,11 +59,12 @@ void TestMainWindow::connectToDB()
 void TestMainWindow::on_pushButton_clicked()    //insert button
 {
     qDebug() << "clicked the insert button";
-    query.prepare("INSERT INTO mainDB(Number, Name, Count, Commentaries)"
+
+    query.prepare("INSERT INTO maindb(Number, Name, Count, Commentaries)"
                   "VALUES('num_qt', 'name_qt', 'count_qt', 'comm_qt');");
 
     if (!query.exec())
-        qDebug() << query.lastError().text();
+        qDebug() << "Error: " << query.lastError().text();
     else
         qDebug() << "query's succesful";
 }
