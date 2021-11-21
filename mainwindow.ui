@@ -42,12 +42,48 @@
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
+     <property name="leftMargin">
+      <number>5</number>
+     </property>
+     <property name="topMargin">
+      <number>5</number>
+     </property>
+     <property name="rightMargin">
+      <number>5</number>
+     </property>
+     <property name="bottomMargin">
+      <number>5</number>
+     </property>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <property name="leftMargin">
+        <number>5</number>
+       </property>
+       <property name="topMargin">
+        <number>5</number>
+       </property>
+       <property name="rightMargin">
+        <number>5</number>
+       </property>
+       <property name="bottomMargin">
+        <number>5</number>
+       </property>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
          <property name="sizeConstraint">
           <enum>QLayout::SetDefaultConstraint</enum>
+         </property>
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="topMargin">
+          <number>5</number>
+         </property>
+         <property name="rightMargin">
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>5</number>
          </property>
          <item>
           <widget class="QTableView" name="tableView">
@@ -82,6 +118,18 @@
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>5</number>
+           </property>
            <item>
             <widget class="QLabel" name="label">
              <property name="sizePolicy">
@@ -141,6 +189,18 @@
            <property name="sizeConstraint">
             <enum>QLayout::SetDefaultConstraint</enum>
            </property>
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>5</number>
+           </property>
            <item>
             <widget class="QLineEdit" name="lineEdit"/>
            </item>
@@ -166,13 +226,16 @@
           <enum>QLayout::SetDefaultConstraint</enum>
          </property>
          <property name="leftMargin">
-          <number>0</number>
+          <number>5</number>
          </property>
          <property name="topMargin">
-          <number>0</number>
+          <number>5</number>
          </property>
          <property name="rightMargin">
-          <number>0</number>
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>5</number>
          </property>
          <item>
           <spacer name="verticalSpacer_2">
@@ -231,6 +294,18 @@
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <property name="leftMargin">
+        <number>5</number>
+       </property>
+       <property name="topMargin">
+        <number>5</number>
+       </property>
+       <property name="rightMargin">
+        <number>5</number>
+       </property>
+       <property name="bottomMargin">
+        <number>6</number>
+       </property>
        <item>
         <widget class="QPushButton" name="pushButton">
          <property name="text">
@@ -242,6 +317,13 @@
         <widget class="QPushButton" name="pushButton_2">
          <property name="text">
           <string>Delete</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton">
+         <property name="text">
+          <string>Edit table</string>
          </property>
         </widget>
        </item>

@@ -9,6 +9,8 @@
 #include <QDebug>
 #include <QCompleter>
 #include <QStringList>
+#include <QMessageBox>
+#include <QSqlError>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,23 +23,26 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void connectToDB();
+    void completerLE();
 
 
 private slots:
 
 
-    void on_pushButton_clicked();
+//    void on_pushButton_clicked();
 
-    void on_pushButton_2_clicked();
+//    void on_pushButton_2_clicked();
 
-    void on_tableView_clicked(const QModelIndex &index);
+//    void on_tableView_clicked(const QModelIndex &index);
 
-     void on_lineEdit_5_textEdited(const QString &arg1);
+//     void on_lineEdit_5_textEdited(const QString &arg1);
 
+//     void on_radioButton_clicked(bool checked);
 
 private:
     Ui::MainWindow *ui;
-    QSqlDatabase mainDB, hideDB, lowwerDB;
+    QSqlDatabase db, hideDB, lowwerDB;
     QSqlQuery query;
     QSqlTableModel *model;
     QCompleter *completer;
