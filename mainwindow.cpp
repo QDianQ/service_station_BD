@@ -85,10 +85,10 @@ void MainWindow::on_pushButton_clicked() //insert row
     count = ui->lineEdit_3->text();
     comm = ui->lineEdit_4->text();
 
-    qDebug() << "Name: "
-             << name.toStdString().c_str();
     qDebug() << "Number: "
              << number.toStdString().c_str();
+    qDebug() << "Name: "
+             << name.toStdString().c_str();
     qDebug() << "Count: "
              << count.toStdString().c_str();
     qDebug() << "Comm: "
@@ -113,9 +113,48 @@ void MainWindow::on_pushButton_clicked() //insert row
 //    --- the end of insert ---
 
 //    --- insert a row to the hidedb ---
-    query.prepare("INSERT INTO hidedb(Номер)"
-                   "VALUES(:number);");
-    query.bindValue(":number",number);
+    query.prepare("INSERT INTO hidedb(Номер,Название)"
+                  "VALUES(NULL, NULL)");
+    if (!query.exec())
+    {
+        qDebug() << "Error: " << query.lastError().text();
+    }
+    else
+    {
+        updateCompleter();
+        qDebug() << "insert into null hidedb is succesful";
+    }
+    if (ui->lineEdit->text() != ""){
+        query.prepare("INSERT INTO numberdb(Номер)"
+                      "VALUES(:number)");
+        query.bindValue(":number",number);
+
+        if (!query.exec())
+        {
+            qDebug() << "Error: " << query.lastError().text();
+        }
+        else
+        {
+            updateCompleter();
+            qDebug() << "insert into numberdb is succesful";
+        }
+    }
+    if (ui->lineEdit_2->text() != ""){
+        query.prepare("INSERT INTO namedb(Название)"
+                       "VALUES(:name)");
+        query.bindValue(":name",name);
+
+        if (!query.exec())
+        {
+            qDebug() << "Error: " << query.lastError().text();
+        }
+        else
+        {
+            updateCompleter();
+            qDebug() << "insert into namerdb is succesful";
+        }
+    }
+    query.prepare("UPDATE hidedb SET Номер = numberdb.Номер FROM numberdb WHERE uniq_id = numberdb.uniq_number;");
 
     if (!query.exec())
     {
@@ -124,11 +163,9 @@ void MainWindow::on_pushButton_clicked() //insert row
     else
     {
         updateCompleter();
-        qDebug() << "query's succesful";
+        qDebug() << "update 1 is succesful";
     }
-    query.prepare("INSERT INTO hidedb(Название)"
-                   "VALUES(:name);");
-    query.bindValue(":name",name);
+    query.prepare("UPDATE hidedb SET Название = namedb.Название FROM namedb WHERE uniq_id = namedb.uniq_name;");
 
     if (!query.exec())
     {
@@ -137,26 +174,43 @@ void MainWindow::on_pushButton_clicked() //insert row
     else
     {
         updateCompleter();
-        qDebug() << "query's succesful";
+        qDebug() << "update 2 is succesful";
     }
+//    query.prepare("DELETE FROM hidedb WHERE Номер IS NULL AND Название IS NULL;");
+
+//    if (!query.exec())
+//    {
+//        qDebug() << "Error: " << query.lastError().text();
+//    }
+//    else
+//    {
+//        updateCompleter();
+//        qDebug() << "delete null is succesful";
+//    }
+
+
 
 //    --- the end of insert ---
 }
 
 void MainWindow::on_pushButton_2_clicked() //delete row
 {
-//    if(!model->removeRow(model_index.row()))
-//        qDebug() << "Delete error: "
-//                 << model->lastError().text();
-//    else
-//        qDebug() << "Delete succesful";
+    if(!model->removeRow(model_index.row()))
+        qDebug() << "Delete error: "
+                 << model->lastError().text();
+    else
+        qDebug() << "Delete succesful";
 
     if(!hide_model->clearItemData(model_index))
         qDebug() << "Delete item error: "
                  << hide_model->lastError().text();
     else
+    {
+        hide_model->submitAll();
+        qDebug() << "isEmpty "
+                 << hide_model->itemData(model_index).empty();
         qDebug() << "Delete item succesful";
-
+    }
     model->select();
     updateCompleter();
 }
@@ -215,15 +269,15 @@ void MainWindow::on_radioButton_clicked(bool checked)
     qDebug() << "Editer is "
              << checked;
 
-    if (checked)
-        ui->tableView->setModel(hide_model);
-    else
-        ui->tableView->setModel(model);
-
 //    if (checked)
-//        model->setTable("hidedb");
+//        ui->tableView->setModel(hide_model);
 //    else
-//        model->setTable("maindb");
-//    model->select();
+//        ui->tableView->setModel(model);
+
+    if (checked)
+        model->setTable("hidedb");
+    else
+        model->setTable("maindb");
+    model->select();
 
 }
