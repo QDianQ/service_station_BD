@@ -11,6 +11,11 @@
 #include <QStringList>
 #include <QMessageBox>
 #include <QSqlError>
+#include <QMenu>
+#include <QMenuBar>
+#include <QPushButton>
+#include <QVariant>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,7 +31,9 @@ public:
     void connectToDB();
     void setCompleterLE();
     void updateCompleter();
-
+    void deleteNullRows();
+    void sortTable();
+    void insertRow();
 
 private slots:
 
@@ -37,9 +44,29 @@ private slots:
 
     void on_tableView_clicked(const QModelIndex &index);
 
-     void on_lineEdit_5_textEdited(const QString &arg1);
+    void on_lineEdit_5_textEdited(const QString &arg1);
 
-     void on_radioButton_clicked(bool checked);
+    void on_action_triggered();
+
+    void on_pushButton_3_clicked();
+
+    void on_action_2_triggered();
+
+    void on_comboBox_activated(int index);
+
+    void on_comboBox_2_activated(int index);
+
+
+
+    void on_lineEdit_returnPressed();
+
+    void on_lineEdit_2_returnPressed();
+
+    void on_lineEdit_3_returnPressed();
+
+    void on_lineEdit_4_returnPressed();
+
+    void on_action_5_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -50,7 +77,8 @@ private:
 
 
     QModelIndex model_index;
-    QString name, number, comm, search_original, count, testStr;
+    int indexColumn, indexSort;
+    QString name, number, comm, count, deleteCell;
     QStringList str_list;
 };
 #endif // MAINWINDOW_H
