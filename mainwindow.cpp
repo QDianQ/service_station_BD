@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     query = QSqlQuery(db);
 
     model = new QSqlTableModel(this,db);
-    model->setTable("maindb");
+    model->setTable("maintable");
     sortTable();
     model->select();
 
@@ -67,7 +67,7 @@ void MainWindow::setCompleterLE()
     QCompleter *completer_number, *completer_name;
 
     hide_model = new QSqlTableModel(this,db);
-    hide_model->setTable("hidedb");
+    hide_model->setTable("hidetable");
     hide_model->select();
 
     completer_number = new QCompleter(hide_model,this);
@@ -105,8 +105,8 @@ void MainWindow::insertRow()
     qDebug() << "Comm: "
              << comm.toStdString().c_str();
 
-    //    --- insert a row to the maindb ---
-    query.prepare("INSERT INTO maindb(Номер, Название, Количество, Комментарий)"
+    //    --- insert a row to the maintable ---
+    query.prepare("INSERT INTO maintable(\"Номер детали\", Название, Количество, Комментарий)"
                    "VALUES(:number,:name, :count, :comm);");
     query.bindValue(":number",number);
     query.bindValue(":name",name);
@@ -123,8 +123,8 @@ void MainWindow::insertRow()
     }
 //    --- the end of insert ---
 
-//    --- insert a row to the hidedb ---
-    query.prepare("INSERT INTO hidedb(Номер,Название)"
+//    --- insert a row to the hidetable ---
+    query.prepare("INSERT INTO hidetable(\"Номер детали\",Название)"
                   "VALUES(NULL, NULL)");
     if (!query.exec())
     {
@@ -133,10 +133,10 @@ void MainWindow::insertRow()
     else
     {
         updateCompleter();
-        qDebug() << "insert into null hidedb is succesful";
+        qDebug() << "insert into null hidetable is succesful";
     }
     if (ui->lineEdit->text() != ""){
-        query.prepare("INSERT INTO numberdb(Номер)"
+        query.prepare("INSERT INTO numbertable(\"Номер детали\")"
                       "VALUES(:number)");
         query.bindValue(":number",number);
 
@@ -147,11 +147,11 @@ void MainWindow::insertRow()
         else
         {
             updateCompleter();
-            qDebug() << "insert into numberdb is succesful";
+            qDebug() << "insert into numbertable is succesful";
         }
     }
     if (ui->lineEdit_2->text() != ""){
-        query.prepare("INSERT INTO namedb(Название)"
+        query.prepare("INSERT INTO nametable(Название)"
                        "VALUES(:name)");
         query.bindValue(":name",name);
 
@@ -165,7 +165,7 @@ void MainWindow::insertRow()
             qDebug() << "insert into namerdb is succesful";
         }
     }
-    query.prepare("UPDATE hidedb SET Номер = numberdb.Номер FROM numberdb WHERE uniq_id = numberdb.uniq_number;");
+    query.prepare("UPDATE hidetable SET \"Номер детали\" = numbertable.\"Номер детали\" FROM numbertable WHERE uniq_id = numbertable.uniq_number;");
 
     if (!query.exec())
     {
@@ -176,7 +176,7 @@ void MainWindow::insertRow()
         updateCompleter();
         qDebug() << "update 1 is succesful";
     }
-    query.prepare("UPDATE hidedb SET Название = namedb.Название FROM namedb WHERE uniq_id = namedb.uniq_name;");
+    query.prepare("UPDATE hidetable SET Название = nametable.Название FROM nametable WHERE uniq_id = nametable.uniq_name;");
 
     if (!query.exec())
     {
@@ -203,13 +203,13 @@ void MainWindow::on_pushButton_clicked() //insert row
 
 void MainWindow::on_pushButton_2_clicked() //delete row
 {
-    if(model->tableName()=="maindb")
+    if(model->tableName()=="maintable")
     {
         if(!model->removeRow(model_index.row()))
             qDebug() << "Delete error: "
                      << model->lastError().text();
         else
-            qDebug() << "Delete from maindb succesful";
+            qDebug() << "Delete from maintable succesful";
     }
     else
     {
@@ -224,10 +224,10 @@ void MainWindow::on_pushButton_2_clicked() //delete row
             qDebug() << "Delete item succesful";
         }
 
-        if (query.exec(QString("DELETE FROM namedb WHERE Название = '%1'").arg(deleteCell)))
+        if (query.exec(QString("DELETE FROM nametable WHERE Название = '%1'").arg(deleteCell)))
                 qDebug() << "delete from name";
 
-        if(query.exec(QString("DELETE FROM numberdb WHERE Номер = '%1'").arg(deleteCell)))
+        if(query.exec(QString("DELETE FROM numbertable WHERE \"Номер детали\" = '%1'").arg(deleteCell)))
                 qDebug() << "delete from number";
 
     }
@@ -262,7 +262,7 @@ void MainWindow::on_lineEdit_5_textEdited(const QString &arg1)  //search text in
 {
 
 //    --- searching for number ---
-    model->setFilter(QString("Номер ILIKE '%%1%'").arg(arg1));
+    model->setFilter(QString("\"Номер детали\" ILIKE '%%1%'").arg(arg1));
 
     qDebug() << "searching for name...  "
              << arg1;
@@ -294,19 +294,19 @@ void MainWindow::on_lineEdit_5_textEdited(const QString &arg1)  //search text in
 
 void MainWindow::deleteNullRows()
 {
-    query.exec("SELECT * FROM namedb");
+    query.exec("SELECT * FROM nametable");
     int countOfName = query.size();
-    qDebug() << "namedb "
+    qDebug() << "nametable "
              << countOfName;
 
-    query.exec("SELECT * FROM numberdb");
+    query.exec("SELECT * FROM numbertable");
     int countOfNumber = query.size();
-    qDebug() << "numberdb "
+    qDebug() << "numbertable "
              << countOfNumber;
 
-    query.exec("SELECT * FROM hidedb");
+    query.exec("SELECT * FROM hidetable");
     int countOfHide = query.size();
-    qDebug() << "hidedb "
+    qDebug() << "hidetable "
              << countOfHide;
 
     if( (countOfName < countOfHide) or (countOfNumber < countOfHide))
@@ -314,9 +314,9 @@ void MainWindow::deleteNullRows()
 
         int currentOfMax = __max(countOfName,countOfNumber) + 1;
 
-        if(!query.exec(QString("DELETE FROM hidedb WHERE Номер IS NULL AND Название IS NULL;"
-                   "SELECT pg_get_serial_sequence('hidedb', 'uniq_id');"
-                   "ALTER SEQUENCE public.hidedb_uniq_id_seq RESTART WITH %1;").arg(currentOfMax)))
+        if(!query.exec(QString("DELETE FROM hidetable WHERE \"Номер детали\" IS NULL AND Название IS NULL;"
+                   "SELECT pg_get_serial_sequence('hidetable', 'uniq_id');"
+                   "ALTER SEQUENCE public.hidetable_uniq_id_seq RESTART WITH %1;").arg(currentOfMax)))
 
             qDebug() << "Error ALTER: " << query.lastError().text();
         else
@@ -344,7 +344,7 @@ void MainWindow::on_action_triggered()  //MenuBar.Actions "Редактиров�
 
     deleteNullRows();
 
-    model->setTable("hidedb");
+    model->setTable("hidetable");
     model->select();
     ui->tableView->setColumnHidden(0,true);
 
@@ -364,7 +364,7 @@ void MainWindow::on_pushButton_3_clicked()  //Button "Сохранить"
     ui->lineEdit_2->setVisible(true);
     ui->lineEdit_3->setVisible(true);
     ui->lineEdit_4->setVisible(true);
-    model->setTable("maindb");
+    model->setTable("maintable");
     sortTable();
     qDebug() << model->tableName();
 }
@@ -394,7 +394,7 @@ void MainWindow::on_action_2_triggered()    //MenuBar.Actions "Очистить 
           break;
       case 1:
         qDebug() << "del";
-          query.exec("delete from maindb where Номер is not null;");
+          query.exec("delete from maintable where \"Номер детали\" is not null;");
           model->select();
           break;
       default:
@@ -479,18 +479,18 @@ void MainWindow::on_action_5_triggered()    //MenuBar.Actions "Очистить 
           break;
       case 1:
         qDebug() << "del";
-          query.exec("delete from hidedb where Номер is null or Название is null;"
-                     "delete from hidedb where Номер is not null or Название is not null;"
-                     "SELECT pg_get_serial_sequence('hidedb', 'uniq_id');"
-                     "ALTER SEQUENCE public.hidedb_uniq_id_seq RESTART WITH 1;"
+          query.exec("delete from hidetable where \"Номер детали\" is null or Название is null;"
+                     "delete from hidetable where \"Номер детали\" is not null or Название is not null;"
+                     "SELECT pg_get_serial_sequence('hidetable', 'uniq_id');"
+                     "ALTER SEQUENCE public.hidetable_uniq_id_seq RESTART WITH 1;"
 
-                     "delete from numberdb where Номер is not null;"
-                     "SELECT pg_get_serial_sequence('numberdb', 'uniq_number');"
-                     "ALTER SEQUENCE public.numberdb_uniq_number_seq RESTART WITH 1;"
+                     "delete from numbertable where \"Номер детали\" is not null;"
+                     "SELECT pg_get_serial_sequence('numbertable', 'uniq_number');"
+                     "ALTER SEQUENCE public.numbertable_uniq_number_seq RESTART WITH 1;"
 
-                     "delete from namedb where Название is not null;"
-                     "SELECT pg_get_serial_sequence('namedb', 'uniq_name');"
-                     "ALTER SEQUENCE public.namedb_uniq_name_seq RESTART WITH 1;");
+                     "delete from nametable where Название is not null;"
+                     "SELECT pg_get_serial_sequence('nametable', 'uniq_name');"
+                     "ALTER SEQUENCE public.nametable_uniq_name_seq RESTART WITH 1;");
           model->select();
           break;
       default:
