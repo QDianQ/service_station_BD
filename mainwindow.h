@@ -34,6 +34,8 @@ public:
     void deleteNullRows();
     void sortTable();
     void insertRow();
+    void createTable();
+    void setSizeColumns();
 
 private slots:
 

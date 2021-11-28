@@ -11,27 +11,19 @@ MainWindow::MainWindow(QWidget *parent)
     indexColumn = 0;
     indexSort = 0;
 
-//    adjustSize();
-
     connectToDB();
-
     query = QSqlQuery(db);
-
+    createTable();
     model = new QSqlTableModel(this,db);
     model->setTable("maintable");
     sortTable();
     model->select();
 
+    ui->tableView->horizontalHeader()->setStyleSheet("QHeaderView::section { background-color: #FFFFFF }");
     ui->tableView->setModel(model);
 
-//    ui->tableView->horizontalHeader()
 
-    ui->tableView->horizontalHeader()->setHighlightSections(true);
-    ui->tableView->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Fixed);
-    ui->tableView->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Fixed);
-    ui->tableView->horizontalHeader()->setSectionResizeMode(2,QHeaderView::ResizeToContents);
-    ui->tableView->horizontalHeader()->setSectionResizeMode(3,QHeaderView::Stretch);
-
+    setSizeColumns();
 
     qDebug() << "table's names"
              << db.tables();
@@ -48,6 +40,15 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::setSizeColumns()
+{
+    ui->tableView->horizontalHeader()->setHighlightSections(true);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Fixed);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Fixed);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(2,QHeaderView::ResizeToContents);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(3,QHeaderView::Stretch);
+
+}
 void MainWindow::connectToDB()
 {
     db = QSqlDatabase::addDatabase("QPSQL");
@@ -84,6 +85,24 @@ void MainWindow::setCompleterLE()
 void MainWindow::updateCompleter()
 {
     hide_model->select();
+}
+
+void MainWindow::createTable()
+{
+    query.exec("create table mainTable(\"Номер детали\" varchar(255),"
+                                       "Название varchar(255),"
+                                       "Количество integer,"
+                                       "Комментарий varchar(255));"
+
+                "create table hideTable(uniq_id SERIAL,"
+                                       "\"Номер детали\" varchar(255),"
+                                       "Название varchar(255));"
+
+                "create table nameTable(uniq_name SERIAL,"
+                                       "Название varchar(255) not null unique);"
+
+                "create table numberTable(uniq_number SERIAL,"
+                                       "\"Номер детали\" varchar(255) not null unique);");
 }
 
 void MainWindow::insertRow()
@@ -346,6 +365,14 @@ void MainWindow::on_action_triggered()  //MenuBar.Actions "Редактиров�
 
     model->setTable("hidetable");
     model->select();
+
+    ui->tableView->horizontalHeader()->setHighlightSections(true);
+
+    ui->tableView->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Fixed);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(2,QHeaderView::Fixed);
+
+
+
     ui->tableView->setColumnHidden(0,true);
 
     qDebug() << model->tableName();
@@ -366,6 +393,7 @@ void MainWindow::on_pushButton_3_clicked()  //Button "Сохранить"
     ui->lineEdit_4->setVisible(true);
     model->setTable("maintable");
     sortTable();
+    setSizeColumns();
     qDebug() << model->tableName();
 }
 
